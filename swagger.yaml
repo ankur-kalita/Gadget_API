@@ -6,7 +6,7 @@ info:
               Let me know if you want more tweaks! 👻
 
 servers:
-  - url: http://localhost:4085/api/v1
+  - url: https://gadget-api.onrender.com/api/v1
     description: Local server
 
 paths:
