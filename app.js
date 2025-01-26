@@ -1,5 +1,7 @@
 require('dotenv').config({ path: `${process.cwd()}/.env` });
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
 
 const authRouter = require('./route/authRoute');
 const gadgetRouter = require('./route/gadgetRoute'); 
@@ -8,53 +10,34 @@ const catchAsync = require('./utils/catchAsync');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/errorController');
 
+const DB = require("./db")
+
 const app = express();
 
 app.use(express.json());
 
-const { Sequelize } = require('sequelize');
+DB().sequelize.sync({alter: true}).then(() => {
 
+    DB().sequelize
+  .authenticate()
+  .then(() => console.log("Database connected!"))
+  .catch((error) => console.error("Unable to connect to the database:", error));
+    app.listen(process.env.APP_PORT, () => {
+        console.log('====================================');
+        console.log("App Started!");
+        console.log('====================================');
+    })
+})
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    protocol: 'postgres',
-    logging: true, 
-    dialectOptions: {
-      ssl: {
-        require: true, 
-        rejectUnauthorized: false, 
-      },
-    },
-    seederStorage: 'sequelize',
-  });
+const swaggerDocument = fs.readFileSync('./swagger.yaml', 'utf8');
+const swaggerYaml = require('yaml').parse(swaggerDocument);
 
-async function testConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
-}
-
-testConnection();
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerYaml));
 
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/gadgets', gadgetRouter);
 app.use('/api/v1/users', userRouter);
 
-app.use(
-    '*',
-    catchAsync(async (req, res, next) => {
-        throw new AppError(`Bruh, Can't find ${req.originalUrl} on this server`, 404);
-    })
-);
-
-app.use(globalErrorHandler);
 
 const PORT = process.env.APP_PORT || 4000;
-
-app.listen(PORT, () => {
-    console.log('Booyah🎉, Server up and running on port', PORT);
-});

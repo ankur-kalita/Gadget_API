@@ -1,0 +1,298 @@
+openapi: 3.0.0
+info:
+  title: The Gadget Apocalypse API, Where Authentication Meets Destruction!
+  version: 1.0.0
+  description: Manage your gadgets, control their fate, and unleash self-destruct sequences with a single call. Beware of the Decommissioned..."
+              Let me know if you want more tweaks! 👻
+
+servers:
+  - url: http://localhost:4085/api/v1
+    description: Local server
+
+paths:
+  /auth/signup:
+    post:
+      summary: Sign up a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        201:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+
+  /auth/login:
+    post:
+      summary: Log in a user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                    example: "jwt.token.string"
+
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: List of all users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+
+  /gadgets:
+    get:
+      summary: Get all gadgets
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter gadgets by status
+          schema:
+            type: string
+            enum: [Available, Deployed, Destroyed, Decommissioned]
+      responses:
+        200:
+          description: List of all gadgets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+    post:
+      summary: Create a new gadget
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Gadget A
+                status:
+                  type: string
+                  enum: [Available, Deployed, Destroyed, Decommissioned]
+      responses:
+        201:
+          description: Gadget created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+
+  /gadgets/{id}:
+    get:
+      summary: Get a gadget by ID
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the gadget
+      responses:
+        200:
+          description: Gadget details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+
+    patch:
+      summary: Update a gadget
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the gadget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Updated Gadget Name
+                status:
+                  type: string
+                  enum: [Available, Deployed, Destroyed, Decommissioned]
+      responses:
+        200:
+          description: Gadget updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+
+    delete:
+      summary: Mark a gadget as destroyed
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the gadget
+      responses:
+        200:
+          description: Gadget marked as destroyed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Record deleted successfully
+
+  /gadgets/{id}/self-destruct:
+    post:
+      summary: Trigger gadget self-destruct
+      tags:
+        - Gadgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the gadget
+      responses:
+        200:
+          description: Gadget self-destruct triggered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Gadget self-destruct sequence completed and status updated to Decommissioned
+                  data:
+                    type: object
+                    properties:
+                      confirmationCode:
+                        type: string
+                        example: "123456"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

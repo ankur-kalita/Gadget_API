@@ -13,19 +13,17 @@ const router = require('express').Router();
 
 router
     .route('/')
-    .post(authentication, restrictTo('1'), createGadget)
-    .get(authentication, restrictTo('1'), getAllGadgets);
+    .post(authentication, createGadget)
+    .get(authentication,  getAllGadgets);
 
 router
     .route('/:id')
-    .get(authentication, restrictTo('1'), getGadgetById)
-    .patch(authentication, restrictTo('1'), updateGadget)
-    .delete(authentication, restrictTo('1'), deleteGadget);
+    .get(authentication, getGadgetById)
+    .patch(authentication, updateGadget)
+    .delete(authentication, deleteGadget);
 
 router
-    .post('/:id/self-destruct', authentication, restrictTo('1'), triggerSelfDestruct); 
+    .post('/:id/self-destruct', authentication, triggerSelfDestruct); 
 
-router
-    .post('/:id/self-destruct/confirm', authentication, restrictTo('1'), validateSelfDestruct); 
 
 module.exports = router;
