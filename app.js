@@ -12,6 +12,33 @@ const app = express();
 
 app.use(express.json());
 
+const { Sequelize } = require('sequelize');
+
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    logging: true, 
+    dialectOptions: {
+      ssl: {
+        require: true, 
+        rejectUnauthorized: false, 
+      },
+    },
+    seederStorage: 'sequelize',
+  });
+
+async function testConnection() {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+}
+
+testConnection();
+
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/gadgets', gadgetRouter);
